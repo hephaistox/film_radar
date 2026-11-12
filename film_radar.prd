@@ -1,0 +1,653 @@
+// FilmRadar — PRD v0.1 (premier jet, 2026-11-09)
+// Dépôt : movie-on-tv. Nom produit choisi pour fonctionner en français et en anglais.
+
+product "FilmRadar" {
+
+  vision "FilmRadar garde un œil sur la télévision à votre place : vous signalez les films
+          que vous aimez, ceux que vous voulez voir, et vous êtes prévenu dès qu'un
+          de vos films est programmé sur une chaîne que vous recevez.
+          Là où les guides TV ne montrent que la grille de la semaine, FilmRadar
+          veille sur vos films dans la durée."
+
+  problem {
+    situation "Les films continuent d'être largement diffusés à la télévision (TNT, chaînes
+               du câble et du satellite), souvent gratuitement, mais leur programmation
+               n'est connue que quelques jours ou semaines à l'avance."
+    complication "Pour voir un film précis à la télé, il faut éplucher régulièrement les
+                  programmes ou tomber dessus par hasard. Les guides TV n'alertent que sur
+                  un programme déjà présent dans la grille, et les outils de watchlist
+                  (JustWatch, AlertFilm…) ne suivent que le streaming et les sorties.
+                  Résultat : on rate la diffusion, ou on paie un abonnement ou une location
+                  pour un film qui passait gratuitement la semaine suivante."
+    question "Comment être sûr de ne pas rater le passage à la télé d'un film qu'on veut voir,
+              sans avoir à surveiller les programmes soi-même ?"
+  }
+
+  scope {
+    "Inclus : chaînes de télévision linéaires reçues en France (TNT en priorité)"
+    "Inclus : films de long métrage (pas les séries ni les émissions)"
+    "Exclu en V1 : replay, streaming, vidéo à la demande"
+  }
+
+  non-goals {
+    "Diffuser ou héberger des films — FilmRadar prévient, il ne diffuse pas"
+    "Remplacer un guide TV complet — on ne montre que ce qui concerne vos films"
+    "Devenir un réseau social de critiques (notes, avis publics, fil d'actualité) — SensCritique et Letterboxd le font déjà"
+  }
+
+  // ---------------------------------------------------------------------------
+  // Preuves
+  // ---------------------------------------------------------------------------
+
+  evidence "Aucun concurrent sur l'alerte de diffusion TV en France" {
+    type market-research
+    summary "Une recherche rapide sur les stores et le web ne trouve aucune application
+             française qui surveille dans la durée la programmation TV d'un film choisi.
+             Télé-Loisirs n'alerte que sur un programme déjà dans la grille (2 à 60 min avant) ;
+             TV Guide (US) le fait pour sa watchlist mais seulement aux États-Unis ;
+             JustWatch, Flickoon, AlertFilm et TMDB Notifier couvrent le streaming ;
+             Watchlistr, Switch TV ON et TodoMovies couvrent les sorties."
+    source-reference "Recherche web et App Store du 2026-11-09 (Claude Code), non exhaustive"
+    date 2026-11-09
+    confidence weak
+    supports "Ne pas rater la diffusion d'un film attendu"
+  }
+
+  // ---------------------------------------------------------------------------
+  // Personas
+  // ---------------------------------------------------------------------------
+
+  persona "Cinéphile du petit écran" {
+    role "Amateur de cinéma qui regarde régulièrement des films à la télévision
+          et tient une liste (mentale ou écrite) de films à voir ou à revoir"
+    goals {
+      "Voir les films qui l'intéressent quand ils passent gratuitement"
+      "Revoir ses films préférés au bon moment"
+      "Ne plus avoir à surveiller les programmes TV"
+    }
+    frustrations {
+      "Découvrir après coup qu'un film attendu est passé la veille"
+      "Devoir consulter les programmes chaque semaine pour rien"
+      "Payer une location pour un film diffusé gratuitement peu après"
+    }
+    context "Possède une TV avec la TNT et parfois une box ; consulte son smartphone
+             au quotidien ; regarde la télé surtout en soirée et le week-end"
+    weight primary
+  }
+
+  persona "Spectateur de passage" {
+    role "Personne qui a entendu parler d'un film (conseil d'un proche, article)
+          et aimerait le voir un jour, sans en faire une démarche active"
+    goals {
+      "Ne pas oublier ce film"
+      "Le voir sans effort ni frais si l'occasion se présente"
+    }
+    frustrations {
+      "Oublie le titre du film au bout de quelques semaines"
+      "N'a pas envie d'installer plusieurs applications pour un seul film"
+    }
+    context "Usage ponctuel ; ajoute un ou deux films puis n'ouvre l'application
+             que lorsqu'il reçoit une alerte"
+    weight secondary
+  }
+
+  persona "Spectateur 100 % streaming" {
+    role "Personne qui ne regarde plus la télévision linéaire"
+    goals {
+      "Savoir sur quelle plateforme un film est disponible"
+    }
+    frustrations {
+      "Les alertes de diffusion TV ne lui servent à rien"
+    }
+    context "Pas de TV ou TV utilisée uniquement avec des applications de streaming"
+    weight excluded
+  }
+
+  // ---------------------------------------------------------------------------
+  // Jobs
+  // ---------------------------------------------------------------------------
+
+  job "Ne pas rater la diffusion d'un film attendu" {
+    persona "Cinéphile du petit écran"
+    statement "Quand un film que je veux voir ou revoir finit par être programmé à la télé,
+               je veux le savoir suffisamment tôt,
+               pour pouvoir m'organiser et le regarder ou l'enregistrer."
+    type functional
+    importance critical
+    satisfaction unserved
+    related-to "Garder la trace des films qui m'intéressent"
+    desired-outcomes {
+      "Minimiser le risque qu'un film suivi passe à la télé sans que je sois prévenu" {
+        importance high
+        current-satisfaction low
+      }
+      "Maximiser le délai entre l'alerte et la diffusion" {
+        importance high
+        current-satisfaction low
+      }
+      "Minimiser le temps passé à consulter les programmes TV" {
+        importance medium
+        current-satisfaction low
+      }
+      "Minimiser le nombre d'alertes inutiles (chaîne non reçue, mauvais film)" {
+        importance high
+        current-satisfaction medium
+      }
+    }
+  }
+
+  job "Garder la trace des films qui m'intéressent" {
+    persona "Cinéphile du petit écran"
+    statement "Quand j'entends parler d'un film ou que je repense à un film que j'ai aimé,
+               je veux le noter en quelques secondes,
+               pour ne pas l'oublier et pouvoir y revenir."
+    type functional
+    importance important
+    satisfaction adequately-served
+    desired-outcomes {
+      "Minimiser le temps pour retrouver et noter un film" {
+        importance high
+        current-satisfaction medium
+      }
+      "Minimiser le risque de confondre deux films au titre proche" {
+        importance medium
+        current-satisfaction medium
+      }
+    }
+  }
+
+  job "Ne pas regretter d'avoir payé un film gratuit" {
+    persona "Spectateur de passage"
+    statement "Quand j'ai envie de voir un film mais qu'il n'est pas urgent,
+               je veux attendre qu'il passe gratuitement à la télé,
+               pour ne pas payer une location ou un abonnement pour rien."
+    type emotional
+    importance important
+    satisfaction underserved
+    desired-outcomes {
+      "Minimiser l'effort pour suivre un film sans y penser" {
+        importance high
+        current-satisfaction low
+      }
+    }
+  }
+
+  job "Être prévenu des films qui correspondent à mes goûts" {
+    persona "Cinéphile du petit écran"
+    statement "Quand je suis un cinéaste, un acteur ou un genre que j'aime,
+               je veux être prévenu dès qu'un de leurs films est programmé,
+               sans avoir à connaître et ajouter chaque titre à l'avance."
+    type functional
+    importance important
+    satisfaction unserved
+    related-to "Ne pas rater la diffusion d'un film attendu"
+    desired-outcomes {
+      "Minimiser le risque qu'un film d'un cinéaste ou d'un genre suivi passe sans que je sois prévenu" {
+        importance high
+        current-satisfaction low
+      }
+      "Minimiser le nombre d'alertes hors sujet" {
+        importance medium
+        current-satisfaction low
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Objectifs
+  // ---------------------------------------------------------------------------
+
+  goal "Fiabilité du radar" {
+    statement "Prévenir l'utilisateur de presque toutes les diffusions de ses films suivis
+               sur les chaînes couvertes, avec un délai suffisant pour s'organiser."
+    horizon short-term
+    owner "Anthony (porteur du produit)"
+    metric {
+      indicator "Part des diffusions de films suivis (chaînes couvertes) ayant donné lieu à une alerte"
+      target "≥ 95 %"
+      measurement "Audit mensuel : comparaison des programmes publiés et des alertes envoyées"
+    }
+    metric {
+      indicator "Délai médian entre l'alerte et la diffusion"
+      target "≥ 3 jours"
+      measurement "Horodatage des alertes comparé à l'heure de diffusion"
+    }
+  }
+
+  goal "Pertinence des alertes" {
+    statement "Les alertes reçues concernent le bon film, sur une chaîne que l'utilisateur reçoit."
+    horizon short-term
+    owner "Anthony (porteur du produit)"
+    metric {
+      indicator "Part des alertes signalées comme erronées par les utilisateurs"
+      target "< 2 %"
+      measurement "Bouton « ce n'est pas le bon film » dans l'alerte"
+    }
+  }
+
+  goal "Adoption et rétention" {
+    statement "Les utilisateurs suivent plusieurs films et restent abonnés aux alertes dans la durée."
+    horizon mid-term
+    owner "Anthony (porteur du produit)"
+    metric {
+      indicator "Nombre médian de films sous radar par utilisateur actif"
+      target "≥ 5"
+      measurement "Statistiques produit"
+    }
+    metric {
+      indicator "Part des utilisateurs ayant encore les alertes actives 3 mois après inscription"
+      target "≥ 40 %"
+      measurement "Cohortes mensuelles"
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Hypothèses
+  // ---------------------------------------------------------------------------
+
+  hypothesis "L'alerte de diffusion crée la rétention" {
+    intervention "Alerter l'utilisateur quand un film qu'il suit est programmé à la télé"
+    expected-outcome "Au moins 40 % des utilisateurs gardent les alertes actives après 3 mois"
+    mechanism "Chaque alerte est un moment de valeur concret (un film voulu, gratuit, bientôt)
+               qui rappelle l'utilité de l'application sans demander d'effort"
+    validation-method "Bêta fermée avec 30 à 50 utilisateurs pendant 3 mois, suivi par cohorte"
+    status proposed
+    proposes "FEAT-003"
+    predicts "Adoption et rétention"
+  }
+
+  hypothesis "Filtrer par chaînes reçues réduit les alertes inutiles" {
+    intervention "Laisser l'utilisateur indiquer les chaînes qu'il reçoit"
+    expected-outcome "Moins de 2 % d'alertes signalées comme erronées"
+    mechanism "Une alerte pour une chaîne non reçue est perçue comme du bruit et pousse à couper les notifications"
+    validation-method "Comparer le taux de désactivation des alertes avant et après la fonctionnalité"
+    status proposed
+    proposes "FEAT-004"
+    predicts "Pertinence des alertes"
+  }
+
+  // ---------------------------------------------------------------------------
+  // Fonctionnalités
+  // ---------------------------------------------------------------------------
+
+  feature FEAT-001 "Recherche de film" {
+    summary "Retrouver un film par son titre (français ou original), avec affiche, année et réalisateur pour lever les ambiguïtés"
+    persona "Cinéphile du petit écran"
+    value-proposition "Noter un film en quelques secondes sans se tromper de version ou de remake"
+    priority must
+    status proposed
+    addresses "Garder la trace des films qui m'intéressent"
+    advances "Pertinence des alertes"
+    non-goals {
+      "Afficher des critiques ou des notes publiques"
+    }
+    stories {
+      US-001 "En tant que cinéphile du petit écran, je veux chercher un film par son titre français
+              ou original, afin de le retrouver même si je ne connais qu'un des deux titres." {
+        acceptance-criteria {
+          AC-001-01 "La recherche trouve un film par son titre français comme par son titre original"
+          AC-001-02 "Chaque résultat affiche l'affiche, l'année de sortie et le réalisateur"
+          AC-001-03 "Deux films de même titre (remake, homonyme) apparaissent comme deux résultats distincts"
+        }
+      }
+    }
+  }
+
+  feature FEAT-002 "Mes films : j'aime / envie de voir" {
+    summary "Marquer un film comme aimé et/ou comme envie de voir, et retrouver ces listes"
+    persona "Cinéphile du petit écran"
+    value-proposition "Un seul endroit pour garder ses films, qui alimente ensuite le radar"
+    priority must
+    status proposed
+    addresses "Garder la trace des films qui m'intéressent"
+    advances "Adoption et rétention"
+    non-goals {
+      "Noter les films sur une échelle (étoiles, note sur 10)"
+      "Partager ses listes publiquement"
+    }
+    stories {
+      US-002 "En tant que cinéphile du petit écran, je veux indiquer que j'aime un film,
+              afin de garder la trace de mes films préférés." {
+        acceptance-criteria {
+          AC-002-01 "Je peux marquer et démarquer un film comme aimé"
+          AC-002-02 "Je retrouve la liste de mes films aimés"
+        }
+      }
+      US-003 "En tant que cinéphile du petit écran, je veux indiquer que j'ai envie de voir un film,
+              afin de ne pas l'oublier." {
+        acceptance-criteria {
+          AC-003-01 "Je peux marquer et démarquer un film comme envie de voir"
+          AC-003-02 "Un même film peut être à la fois aimé et envie de voir (pour le revoir)"
+          AC-003-03 "Marquer un film comme envie de voir propose de le mettre sous radar"
+        }
+      }
+    }
+  }
+
+  feature FEAT-003 "Radar de diffusion" {
+    summary "Mettre un film sous radar et recevoir une alerte dès qu'il est programmé sur une chaîne couverte"
+    persona "Cinéphile du petit écran"
+    value-proposition "Ne plus jamais rater un film attendu, sans surveiller les programmes"
+    priority must
+    status proposed
+    addresses "Ne pas rater la diffusion d'un film attendu", "Ne pas regretter d'avoir payé un film gratuit"
+    advances "Fiabilité du radar", "Adoption et rétention"
+    tested-by "L'alerte de diffusion crée la rétention"
+    non-goals {
+      "Alerter sur les séries ou les émissions"
+    }
+    stories {
+      US-004 "En tant que cinéphile du petit écran, je veux mettre un film sous radar,
+              afin d'être prévenu quand il passera à la télé." {
+        acceptance-criteria {
+          AC-004-01 "Je peux mettre sous radar n'importe quel film, aimé, envie de voir ou ni l'un ni l'autre"
+          AC-004-02 "Je peux retirer un film du radar à tout moment"
+          AC-004-03 "Le radar reste actif sans limite de durée tant que je ne le retire pas"
+        }
+      }
+      US-005 "En tant que cinéphile du petit écran, je veux recevoir une alerte dès qu'un film
+              sous radar est programmé, afin de pouvoir m'organiser." {
+        acceptance-criteria {
+          AC-005-01 "L'alerte est envoyée dès que la diffusion apparaît dans les programmes connus"
+          AC-005-02 "L'alerte indique le film, la chaîne, la date et l'heure de diffusion"
+          AC-005-03 "Un rappel est envoyé le jour de la diffusion"
+          AC-005-04 "Une même diffusion ne déclenche qu'une alerte (plus le rappel)"
+          AC-005-05 "Si la diffusion est déprogrammée ou déplacée, je suis prévenu"
+        }
+      }
+    }
+  }
+
+  feature FEAT-004 "Mes chaînes" {
+    summary "Indiquer les chaînes que je reçois pour ne recevoir que des alertes utiles"
+    persona "Cinéphile du petit écran"
+    value-proposition "Pas d'alerte pour un film diffusé sur une chaîne que je ne peux pas regarder"
+    priority should
+    status proposed
+    addresses "Ne pas rater la diffusion d'un film attendu"
+    advances "Pertinence des alertes"
+    tested-by "Filtrer par chaînes reçues réduit les alertes inutiles"
+    stories {
+      US-006 "En tant que cinéphile du petit écran, je veux choisir les chaînes que je reçois,
+              afin de ne pas être alerté pour des diffusions inaccessibles." {
+        acceptance-criteria {
+          AC-006-01 "Par défaut, les chaînes de la TNT gratuite sont sélectionnées"
+          AC-006-02 "Je peux ajouter ou retirer des chaînes"
+          AC-006-03 "Aucune alerte n'est envoyée pour une chaîne non sélectionnée"
+        }
+      }
+    }
+  }
+
+  feature FEAT-005 "Agenda de mes films" {
+    summary "Voir en un coup d'œil les prochaines diffusions connues de mes films sous radar"
+    persona "Cinéphile du petit écran"
+    value-proposition "Planifier ses soirées cinéma à la télé sans parcourir la grille"
+    priority could
+    status proposed
+    addresses "Ne pas rater la diffusion d'un film attendu"
+    advances "Adoption et rétention"
+    stories {
+      US-007 "En tant que cinéphile du petit écran, je veux voir la liste des prochaines diffusions
+              de mes films sous radar, afin de planifier mes soirées." {
+        acceptance-criteria {
+          AC-007-01 "L'agenda liste les diffusions à venir triées par date"
+          AC-007-02 "Seules les chaînes que je reçois apparaissent"
+        }
+      }
+    }
+  }
+
+  feature FEAT-006 "Suggestions à partir de mes films aimés" {
+    summary "Proposer de mettre sous radar des films proches de ceux que j'aime"
+    persona "Cinéphile du petit écran"
+    value-proposition "Donner de la valeur à la mention « j'aime » au-delà de la simple liste"
+    priority wont
+    status deferred
+    addresses "Garder la trace des films qui m'intéressent"
+    advances "Adoption et rétention"
+  }
+
+  feature FEAT-007 "Programmer l'enregistrement sur la box" {
+    summary "Depuis une alerte de diffusion, programmer l'enregistrement du film sur la box de l'utilisateur"
+    persona "Cinéphile du petit écran"
+    value-proposition "Passer de « je suis prévenu » à « le film est enregistré », même quand on n'est pas devant la télé"
+    priority wont
+    status deferred
+    addresses "Ne pas rater la diffusion d'un film attendu"
+    advances "Adoption et rétention"
+  }
+
+  feature FEAT-008 "Radar par critère : cinéaste, acteur, genre" {
+    summary "Mettre sous radar un cinéaste, un acteur ou un genre et être alerté dès qu'un film correspondant est programmé"
+    persona "Cinéphile du petit écran"
+    value-proposition "Être prévenu d'un film qu'on ne connaissait pas encore mais qui correspond à ses goûts
+                       (« dès qu'un David Lynch passe », « dès qu'un film gore passe »)"
+    priority could
+    status proposed
+    addresses "Être prévenu des films qui correspondent à mes goûts"
+    advances "Adoption et rétention", "Pertinence des alertes"
+  }
+
+  feature FEAT-009 "Radar sur mes plateformes de streaming" {
+    summary "Alerter quand un film sous radar, ou correspondant à un critère suivi, arrive sur une plateforme à laquelle je suis abonné"
+    persona "Cinéphile du petit écran"
+    value-proposition "Profiter aussi des abonnements déjà payés (Netflix, Prime Video…) sans surveiller leurs catalogues"
+    priority wont
+    status deferred
+    addresses "Ne pas rater la diffusion d'un film attendu", "Être prévenu des films qui correspondent à mes goûts"
+    advances "Adoption et rétention"
+  }
+
+  // ---------------------------------------------------------------------------
+  // Hypothèses non validées, risques, contraintes, questions
+  // ---------------------------------------------------------------------------
+
+  assumption "Programmes TV accessibles" {
+    statement "Il existe une source de programmes TV (EPG) pour les chaînes françaises, exploitable
+               légalement et à un coût compatible avec le projet, publiée au moins 7 jours à l'avance"
+    impact-if-wrong "Sans programmes, pas de radar : le produit perd sa raison d'être"
+    validation-plan "Recenser les sources (flux XMLTV publics, API commerciales, données des chaînes)
+                     et vérifier licence, coût, couverture et horizon"
+    status unvalidated
+    underpins "FEAT-003", "FEAT-004", "FEAT-005"
+  }
+
+  assumption "Programme rattachable à un film" {
+    statement "On peut relier automatiquement une diffusion au bon film (titre, année, réalisateur) dans plus de 95 % des cas"
+    impact-if-wrong "Alertes manquées ou erronées ; perte de confiance rapide"
+    validation-plan "Tester le rapprochement sur 4 semaines de programmes de la TNT"
+    status unvalidated
+    underpins "FEAT-003"
+  }
+
+  assumption "Assez de films diffusés à la télé" {
+    statement "Un utilisateur qui suit 5 à 10 films reçoit au moins une alerte par trimestre"
+    impact-if-wrong "Trop peu d'alertes : l'utilisateur oublie l'application ou la désinstalle"
+    validation-plan "Mesurer sur l'historique des programmes la fréquence de rediffusion d'un échantillon de 200 films"
+    status unvalidated
+    underpins "FEAT-003"
+  }
+
+  risk "Licence des programmes TV" {
+    statement "La source de programmes choisie interdit l'usage commercial ou devient payante"
+    likelihood medium
+    impact critical
+    mitigation mitigate
+    owner "Anthony (porteur du produit)"
+    threatens "FEAT-003", "Fiabilité du radar"
+  }
+
+  risk "Notifications coupées" {
+    statement "L'utilisateur refuse ou coupe les notifications et ne reçoit plus les alertes"
+    likelihood medium
+    impact high
+    mitigation mitigate
+    owner "Anthony (porteur du produit)"
+    threatens "Adoption et rétention"
+  }
+
+  constraint "RGPD" {
+    statement "Les données personnelles (compte, listes de films, préférences) sont traitées conformément au RGPD,
+               y compris le droit à l'effacement"
+    source regulatory
+    constrains "FEAT-002", "FEAT-003"
+  }
+
+  constraint "Consentement aux notifications" {
+    statement "Les alertes par notification ou par e-mail nécessitent le consentement explicite de l'utilisateur"
+    source regulatory
+    constrains "FEAT-003"
+  }
+
+  open-question "Source des programmes TV" {
+    question "Quelle source de programmes TV utiliser, avec quelle couverture et quel horizon ?"
+    context "Conditionne tout le radar et le périmètre des chaînes couvertes"
+    owner "Anthony (porteur du produit)"
+    deadline 2026-12-15
+    status open
+    blocks "FEAT-003", "FEAT-004"
+  }
+
+  open-question "Canal d'alerte" {
+    question "Les alertes passent-elles par notification mobile, par e-mail, ou les deux ?"
+    context "Détermine s'il faut une application mobile dès la V1 ou si une application web suffit"
+    owner "Anthony (porteur du produit)"
+    deadline 2026-12-15
+    status open
+    blocks "FEAT-003"
+  }
+
+  open-question "Source du catalogue de films" {
+    question "Quel catalogue de films utiliser pour la recherche (titres français et originaux, affiches) ?"
+    context "Conditionne la recherche et le rapprochement diffusion → film ; licence à vérifier"
+    owner "Anthony (porteur du produit)"
+    deadline 2026-12-15
+    status open
+    blocks "FEAT-001"
+  }
+
+  open-question "Chaînes couvertes en V1" {
+    question "La V1 couvre-t-elle uniquement la TNT gratuite, ou aussi les chaînes du câble et du satellite ?"
+    context "Plus de chaînes augmente la valeur mais aussi le coût des données et le bruit"
+    owner "Anthony (porteur du produit)"
+    deadline 2026-12-15
+    status open
+    blocks "FEAT-004"
+  }
+
+  open-question "Enregistrement à distance sur les box" {
+    question "Comment obtenir de l'utilisateur l'autorisation (jeton d'accès) de piloter sa box, sans parcours trop lourd ni stockage risqué ?"
+    context "La Freebox expose une API d'enregistrement : la faisabilité technique est acquise pour Free.
+             La difficulté porte sur la capture de l'identité : l'utilisateur doit autoriser FilmRadar
+             et fournir son jeton, que FilmRadar devra conserver de façon sûre.
+             Reste à vérifier l'existence d'API équivalentes chez Orange, SFR et Bouygues"
+    owner "Anthony (porteur du produit)"
+    deadline 2027-06-30
+    status open
+    blocks "FEAT-007"
+  }
+
+  open-question "Granularité des critères" {
+    question "Les données disponibles permettent-elles de reconnaître un cinéaste, un acteur et un genre fin
+              (« gore » plutôt que simplement « horreur ») pour chaque film diffusé ?"
+    context "Les catalogues de films classent souvent par grands genres ; les sous-genres comme le gore
+             relèvent plutôt de mots-clés, moins fiables. Conditionne la pertinence du radar par critère"
+    owner "Anthony (porteur du produit)"
+    deadline 2027-03-31
+    status open
+    blocks "FEAT-008"
+  }
+
+  open-question "Source des catalogues de streaming" {
+    question "Quelle source fiable et utilisable légalement donne la disponibilité des films par plateforme en France ?"
+    context "Nécessaire pour le radar streaming ; les agrégateurs existants n'offrent pas tous un accès ouvert"
+    owner "Anthony (porteur du produit)"
+    deadline 2027-06-30
+    status open
+    blocks "FEAT-009"
+  }
+
+  // ---------------------------------------------------------------------------
+  // Parcours
+  // ---------------------------------------------------------------------------
+
+  journey "Être prévenu qu'un film attendu passe à la télé" for "Cinéphile du petit écran" {
+    trigger "Un ami lui conseille un film qu'il n'a pas vu"
+    outcome "Il regarde le film à la télé le soir de sa diffusion"
+    steps {
+      step 1 {
+        action "Cherche le film dans FilmRadar"
+        system-response "Affiche les résultats avec affiche, année et réalisateur"
+        channel app
+        emotional-tone neutral
+      }
+      step 2 {
+        action "Marque le film « envie de voir » et le met sous radar"
+        system-response "Confirme que le film est sous radar"
+        channel app
+        emotional-tone confident
+      }
+      step 3 {
+        action "Oublie le film pendant plusieurs semaines"
+        channel external
+        emotional-tone neutral
+      }
+      step 4 {
+        action "Reçoit une alerte : le film passe jeudi à 21h sur une chaîne qu'il reçoit"
+        system-response "Envoie l'alerte avec film, chaîne, date et heure"
+        channel app
+        emotional-tone delighted
+      }
+      step 5 {
+        action "Reçoit le rappel le jour même"
+        system-response "Envoie le rappel de diffusion"
+        channel app
+        emotional-tone confident
+      }
+      step 6 {
+        action "Regarde le film à la télé"
+        channel external
+        emotional-tone delighted
+      }
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // Versions
+  // ---------------------------------------------------------------------------
+
+  release "R1 — Radar minimal" {
+    target-date "T1 2027"
+    theme "Chercher un film, le suivre, être prévenu de sa diffusion sur la TNT"
+    status planned
+    includes {
+      "FEAT-001"
+      "FEAT-002"
+      "FEAT-003"
+    }
+    entry-criteria {
+      "Source des programmes TV choisie et licence validée"
+      "Source du catalogue de films choisie"
+    }
+    exit-criteria {
+      "Toutes les fonctionnalités must passent leurs critères d'acceptation"
+      "Rapprochement diffusion → film correct dans plus de 95 % des cas sur 4 semaines de test"
+      "Bêta fermée lancée avec au moins 30 utilisateurs"
+    }
+  }
+
+  release "R2 — Alertes ciblées" {
+    target-date "T2 2027"
+    theme "Ne recevoir que des alertes utiles et voir son agenda"
+    status planned
+    depends-on "R1 — Radar minimal"
+    includes {
+      "FEAT-004"
+      "FEAT-005"
+    }
+    exit-criteria {
+      "Moins de 2 % d'alertes signalées comme erronées"
+    }
+  }
+}

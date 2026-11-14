@@ -1,5 +1,5 @@
-// FilmRadar — PRD v0.1 (premier jet, 2026-11-09)
-// Dépôt : movie-on-tv. Nom produit choisi pour fonctionner en français et en anglais.
+// FilmRadar — PRD v0.2 (2026-11-14 ; premier jet le 2026-11-09)
+// Dépôt : film_radar. Nom produit choisi pour fonctionner en français et en anglais.
 
 product "FilmRadar" {
 
@@ -7,26 +7,35 @@ product "FilmRadar" {
           que vous aimez, ceux que vous voulez voir, et vous êtes prévenu dès qu'un
           de vos films est programmé sur une chaîne que vous recevez.
           Là où les guides TV ne montrent que la grille de la semaine, FilmRadar
-          veille sur vos films dans la durée."
+          veille sur vos films dans la durée, et vous indique où les regarder :
+          à la télé, sur vos plateformes ou en location."
 
   problem {
-    situation "Les films continuent d'être largement diffusés à la télévision (TNT, chaînes
-               du câble et du satellite), souvent gratuitement, mais leur programmation
-               n'est connue que quelques jours ou semaines à l'avance."
-    complication "Pour voir un film précis à la télé, il faut éplucher régulièrement les
+    situation "L'offre de films accessible à un spectateur moyen est déjà énorme : de nombreuses
+               chaînes de télévision (TNT, câble, satellite), des plateformes gratuites
+               (replay, services financés par la publicité) et les plateformes auxquelles il est
+               déjà abonné. Les films continuent notamment d'être largement diffusés à la
+               télévision, souvent gratuitement, mais leur programmation n'est connue que
+               quelques jours ou semaines à l'avance."
+    complication "Le manque n'est pas l'offre mais le lien entre une envie et le moment où le film
+                  devient accessible. Quand on repère un film qui n'est disponible nulle part sur
+                  l'instant, l'envie se perd faute de suivi ; et devant la grille des programmes
+                  ou l'écran de recherche d'une plateforme, on ne sait plus ce qu'on cherchait.
+                  Pour voir un film précis à la télé, il faut éplucher régulièrement les
                   programmes ou tomber dessus par hasard. Les guides TV n'alertent que sur
                   un programme déjà présent dans la grille, et les outils de watchlist
                   (JustWatch, AlertFilm…) ne suivent que le streaming et les sorties.
                   Résultat : on rate la diffusion, ou on paie un abonnement ou une location
                   pour un film qui passait gratuitement la semaine suivante."
-    question "Comment être sûr de ne pas rater le passage à la télé d'un film qu'on veut voir,
-              sans avoir à surveiller les programmes soi-même ?"
+    question "Comment ne plus perdre ses envies de films et les retrouver au moment où ils deviennent
+              regardables, à la télé ou ailleurs, sans surveiller soi-même les programmes et les catalogues ?"
   }
 
   scope {
     "Inclus : chaînes de télévision linéaires reçues en France (TNT en priorité)"
     "Inclus : films de long métrage (pas les séries ni les émissions)"
-    "Exclu en V1 : replay, streaming, vidéo à la demande"
+    "Exclu des R1 et R2 : replay, streaming, vidéo à la demande"
+    "Inclus à partir de la R3 : plateformes de streaming, plateformes gratuites, VOD payante"
   }
 
   non-goals {
@@ -50,7 +59,21 @@ product "FilmRadar" {
     source-reference "Recherche web et App Store du 2026-11-09 (Claude Code), non exhaustive"
     date 2026-11-09
     confidence weak
-    supports "Ne pas rater la diffusion d'un film attendu"
+    supports "FEAT-003"
+  }
+
+  evidence "Des envies de films perdues faute de disponibilité immédiate" {
+    type user-research
+    summary "Observation personnelle du porteur du produit et de son entourage : on repère
+             régulièrement un film (conseil, article, bande-annonce) sans savoir où le regarder
+             sur l'instant. Comme il n'est pas disponible tout de suite et qu'on ne le recherche
+             pas régulièrement ensuite, on en perd la trace et l'envie disparaît.
+             Plus tard, devant la grille des programmes ou l'écran de recherche d'une plateforme,
+             on ne sait plus ce qu'on cherchait."
+    source-reference "Observation informelle du porteur du produit et de son entourage, non quantifiée"
+    date 2026-11-13
+    confidence weak
+    supports "FEAT-002"
   }
 
   // ---------------------------------------------------------------------------
@@ -70,8 +93,10 @@ product "FilmRadar" {
       "Devoir consulter les programmes chaque semaine pour rien"
       "Payer une location pour un film diffusé gratuitement peu après"
     }
-    context "Possède une TV avec la TNT et parfois une box ; consulte son smartphone
-             au quotidien ; regarde la télé surtout en soirée et le week-end"
+    context "Possède une TV avec la TNT et souvent une box, qui inclut en général un service de VOD ;
+             est abonné à 2 ou 3 plateformes (par exemple Netflix, et Prime Video obtenu avec
+             l'abonnement Amazon Prime) ; consulte son smartphone au quotidien ;
+             regarde des films surtout en soirée et le week-end"
     weight primary
   }
 
@@ -99,8 +124,9 @@ product "FilmRadar" {
     frustrations {
       "Les alertes de diffusion TV ne lui servent à rien"
     }
-    context "Pas de TV ou TV utilisée uniquement avec des applications de streaming"
-    weight excluded
+    context "Pas de TV ou TV utilisée uniquement avec des applications de streaming.
+             Non servi par les R1 et R2 ; servi à partir de la R3 (radar streaming, « Où regarder »)"
+    weight secondary
   }
 
   // ---------------------------------------------------------------------------
@@ -143,7 +169,7 @@ product "FilmRadar" {
                pour ne pas l'oublier et pouvoir y revenir."
     type functional
     importance important
-    satisfaction adequately-served
+    satisfaction underserved
     desired-outcomes {
       "Minimiser le temps pour retrouver et noter un film" {
         importance high
@@ -152,6 +178,11 @@ product "FilmRadar" {
       "Minimiser le risque de confondre deux films au titre proche" {
         importance medium
         current-satisfaction medium
+      }
+      "Minimiser le temps pour retrouver un film dont on a oublié le titre
+       mais dont on se rappelle le réalisateur, un acteur ou le style" {
+        importance high
+        current-satisfaction low
       }
     }
   }
@@ -166,6 +197,31 @@ product "FilmRadar" {
     satisfaction underserved
     desired-outcomes {
       "Minimiser l'effort pour suivre un film sans y penser" {
+        importance high
+        current-satisfaction low
+      }
+    }
+  }
+
+  job "Savoir quoi regarder parmi mes envies, maintenant" {
+    persona "Cinéphile du petit écran"
+    statement "Quand je m'installe pour regarder un film et que je ne sais pas quoi choisir,
+               je veux retrouver mes envies de films qui sont regardables maintenant ou bientôt,
+               pour profiter de l'offre que j'ai déjà au lieu de chercher au hasard."
+    type functional
+    importance important
+    satisfaction unserved
+    related-to "Garder la trace des films qui m'intéressent"
+    desired-outcomes {
+      "Minimiser le temps entre « je veux regarder un film » et le choix d'un film" {
+        importance high
+        current-satisfaction low
+      }
+      "Maximiser la part des films choisis qui viennent de mes envies notées" {
+        importance medium
+        current-satisfaction low
+      }
+      "Minimiser le coût pour regarder un film déjà disponible gratuitement ou dans mes abonnements" {
         importance high
         current-satisfaction low
       }
@@ -209,7 +265,7 @@ product "FilmRadar" {
     }
     metric {
       indicator "Délai médian entre l'alerte et la diffusion"
-      target "≥ 3 jours"
+      target "≥ 3 jours (cible indicative, à confirmer par la pratique)"
       measurement "Horodatage des alertes comparé à l'heure de diffusion"
     }
   }
@@ -230,7 +286,7 @@ product "FilmRadar" {
     horizon mid-term
     owner "Anthony (porteur du produit)"
     metric {
-      indicator "Nombre médian de films sous radar par utilisateur actif"
+      indicator "Nombre médian de films « envie de voir » (donc sous radar) par utilisateur actif"
       target "≥ 5"
       measurement "Statistiques produit"
     }
@@ -238,6 +294,33 @@ product "FilmRadar" {
       indicator "Part des utilisateurs ayant encore les alertes actives 3 mois après inscription"
       target "≥ 40 %"
       measurement "Cohortes mensuelles"
+    }
+  }
+
+  goal "Trafic qualifié vers les plateformes" {
+    statement "FilmRadar devient un point de départ pour regarder un film : une part significative
+               des films choisis par les utilisateurs mène à un clic vers la plateforme de streaming
+               ou de VOD où le regarder. Condition préalable à toute monétisation."
+    horizon mid-term
+    owner "Anthony (porteur du produit)"
+    metric {
+      indicator "Nombre mensuel de redirections vers une plateforme de streaming ou de VOD"
+      target "À définir après la R2, une fois la base d'utilisateurs connue"
+      measurement "Comptage des clics sortants par plateforme"
+    }
+  }
+
+  goal "Monétisation par les plateformes" {
+    statement "Les plateformes de streaming et de VOD rémunèrent FilmRadar pour le trafic qualifié
+               qu'il leur apporte et pour la mise en avant de leur offre quand un film
+               est disponible à plusieurs endroits."
+    horizon long-term
+    owner "Anthony (porteur du produit)"
+    metric {
+      indicator "Nombre de plateformes partenaires rémunérant le trafic"
+      target "≥ 1 plateforme partenaire"
+      baseline "0 (aucun contact engagé)"
+      measurement "Contrats signés"
     }
   }
 
@@ -264,6 +347,19 @@ product "FilmRadar" {
     status proposed
     proposes "FEAT-004"
     predicts "Pertinence des alertes"
+  }
+
+  hypothesis "Les plateformes paieront pour un trafic à forte intention" {
+    intervention "Montrer pour chaque film où le regarder (télé, streaming, VOD payante) avec un lien direct,
+                  et départager les offres de même coût pour l'utilisateur en faveur d'une plateforme partenaire"
+    expected-outcome "Au moins une plateforme accepte de rémunérer le trafic ou la mise en avant"
+    mechanism "Un utilisateur qui arrive avec un film précis en tête est prêt à regarder :
+               ce trafic vaut plus pour une plateforme qu'une visite de découverte"
+    validation-method "Mesurer pendant 6 mois les redirections par plateforme, puis présenter
+                       ces chiffres à 3 plateformes pour obtenir une proposition commerciale"
+    status proposed
+    proposes "FEAT-012"
+    predicts "Monétisation par les plateformes"
   }
 
   // ---------------------------------------------------------------------------
@@ -293,10 +389,130 @@ product "FilmRadar" {
     }
   }
 
+  feature FEAT-013 "Compte : connexion sans mot de passe" {
+    summary "Créer un compte et se connecter avec un lien envoyé par e-mail ou avec son compte Google,
+             sans jamais créer de mot de passe"
+    persona "Cinéphile du petit écran"
+    value-proposition "Retrouver ses envies sur tous ses appareils et recevoir ses alertes,
+                       sans mot de passe à inventer ni à retenir"
+    priority must
+    status proposed
+    addresses "Garder la trace des films qui m'intéressent", "Ne pas rater la diffusion d'un film attendu"
+    advances "Adoption et rétention"
+    non-goals {
+      "Gérer des mots de passe (création, oubli, réinitialisation)"
+      "Proposer d'autres fournisseurs d'identité que Google en R1 (Apple, Facebook…)"
+      "Partager un compte entre plusieurs personnes d'un même foyer"
+    }
+    stories {
+      US-011 "En tant que cinéphile du petit écran, je veux me connecter avec un lien reçu par e-mail,
+              afin de ne pas avoir de mot de passe à créer ni à retenir." {
+        acceptance-criteria {
+          AC-011-01 "Je saisis mon adresse e-mail et je reçois un lien de connexion"
+          AC-011-02 "Le lien n'est utilisable qu'une fois et expire au bout de 15 minutes"
+          AC-011-03 "Le premier clic sur le lien crée mon compte et prouve que j'ai accès à cette boîte ;
+                     les suivants me connectent à ce même compte"
+          AC-011-04 "Aucun mot de passe ne m'est jamais demandé"
+          AC-011-05 "Si le lien a expiré, l'application me propose d'en recevoir un nouveau"
+        }
+      }
+      US-012 "En tant que cinéphile du petit écran, je veux me connecter avec mon compte Google,
+              afin de m'inscrire en un geste." {
+        acceptance-criteria {
+          AC-012-01 "Je peux créer mon compte ou me connecter avec Google sans saisir mon adresse e-mail"
+          AC-012-02 "Si mon adresse Google est celle d'un compte déjà créé par lien e-mail, je retrouve ce compte"
+          AC-012-03 "FilmRadar ne demande à Google que mon adresse e-mail et mon nom"
+        }
+      }
+      US-013 "En tant que cinéphile du petit écran, je veux rester connecté sur mon appareil,
+              afin de ne pas devoir me reconnecter à chaque alerte." {
+        acceptance-criteria {
+          AC-013-01 "Je reste connecté sur un appareil pendant au moins 90 jours sans me reconnecter"
+          AC-013-02 "Je peux me déconnecter d'un appareil à tout moment"
+        }
+      }
+      US-014 "En tant que cinéphile du petit écran, je veux supprimer mon compte,
+              afin que FilmRadar ne garde plus mes données." {
+        acceptance-criteria {
+          AC-014-01 "Je peux demander la suppression de mon compte depuis l'application"
+          AC-014-02 "Mes données personnelles sont effacées dans un délai de 30 jours"
+        }
+      }
+    }
+  }
+
+  feature FEAT-010 "Recherche par réalisateur, acteur et genre" {
+    summary "Retrouver un film sans connaître son titre, à partir de ce dont on se souvient :
+             réalisateur, acteurs, genre (tel que fourni par le catalogue de films), époque"
+    persona "Cinéphile du petit écran"
+    value-proposition "Retrouver « le film de Lynch avec Naomi Watts » ou « ce polar des années 2000 »
+                       même quand le titre est oublié — c'est aussi la première frustration
+                       du spectateur de passage"
+    priority should
+    status proposed
+    addresses "Garder la trace des films qui m'intéressent"
+    advances "Adoption et rétention"
+    non-goals {
+      "Reconnaître un film à partir d'une image, d'un extrait ou d'une musique"
+      "Suivre un réalisateur, un acteur ou un genre dans la durée — c'est le rôle de FEAT-008"
+      "Rechercher par style ou sous-genre fin (ambiance, « gore »…) — c'est le rôle de FEAT-011"
+    }
+    stories {
+      US-008 "En tant que cinéphile du petit écran, je veux chercher un film par son réalisateur
+              ou ses acteurs, afin de le retrouver même si j'ai oublié son titre." {
+        acceptance-criteria {
+          AC-008-01 "La recherche par nom de réalisateur ou d'acteur liste ses films, du plus récent au plus ancien"
+          AC-008-02 "Un nom mal orthographié ou incomplet propose les personnes les plus proches"
+          AC-008-03 "Chaque résultat affiche l'affiche, l'année de sortie et le réalisateur, comme la recherche par titre"
+        }
+      }
+      US-009 "En tant que cinéphile du petit écran, je veux combiner plusieurs souvenirs
+              (une personne, un genre, une époque), afin de réduire la liste à quelques films." {
+        acceptance-criteria {
+          AC-009-01 "Je peux combiner une personne, un genre du catalogue et une période"
+          AC-009-02 "Chaque critère ajouté réduit la liste des résultats"
+          AC-009-03 "Depuis un résultat, je peux marquer le film « j'aime » ou « envie de voir », comme depuis la recherche par titre"
+        }
+      }
+    }
+  }
+
+  feature FEAT-011 "Recherche par style" {
+    summary "Retrouver un film par son style ou un sous-genre fin (ambiance, « gore », « film noir »…),
+             à partir des données de style réellement disponibles"
+    persona "Cinéphile du petit écran"
+    value-proposition "Retrouver un film dont on ne se rappelle que l'atmosphère"
+    priority could
+    status proposed
+    addresses "Garder la trace des films qui m'intéressent"
+    advances "Adoption et rétention"
+    non-goals {
+      "Créer ou maintenir soi-même une classification des styles — on s'appuie sur les données trouvées"
+    }
+  }
+
+  feature FEAT-012 "Où regarder : télé, streaming et VOD payante" {
+    summary "Pour chaque film, montrer toutes les façons de le regarder — diffusion télé, plateformes gratuites,
+             plateformes auxquelles je suis abonné, location ou achat en VOD — avec un lien direct"
+    persona "Cinéphile du petit écran"
+    value-proposition "Passer de « j'ai envie de ce film » à « je le regarde » en un clic,
+                       par le moyen le moins cher pour moi"
+    priority should
+    status accepted
+    addresses "Savoir quoi regarder parmi mes envies, maintenant", "Ne pas regretter d'avoir payé un film gratuit"
+    advances "Trafic qualifié vers les plateformes", "Monétisation par les plateformes"
+    tested-by "Les plateformes paieront pour un trafic à forte intention"
+    non-goals {
+      "Mettre en avant une offre payante quand le film est accessible gratuitement ou dans un abonnement de l'utilisateur —
+       la mise en avant rémunérée ne départage que des offres de même coût pour lui"
+      "Vendre ou louer des films nous-mêmes — on redirige vers la plateforme"
+    }
+  }
+
   feature FEAT-002 "Mes films : j'aime / envie de voir" {
     summary "Marquer un film comme aimé et/ou comme envie de voir, et retrouver ces listes"
     persona "Cinéphile du petit écran"
-    value-proposition "Un seul endroit pour garder ses films, qui alimente ensuite le radar"
+    value-proposition "Un seul endroit pour garder ses films ; chaque envie de voir est automatiquement sous radar"
     priority must
     status proposed
     addresses "Garder la trace des films qui m'intéressent"
@@ -318,14 +534,15 @@ product "FilmRadar" {
         acceptance-criteria {
           AC-003-01 "Je peux marquer et démarquer un film comme envie de voir"
           AC-003-02 "Un même film peut être à la fois aimé et envie de voir (pour le revoir)"
-          AC-003-03 "Marquer un film comme envie de voir propose de le mettre sous radar"
+          AC-003-03 "Marquer un film comme envie de voir le met sous radar, sans autre action"
         }
       }
     }
   }
 
   feature FEAT-003 "Radar de diffusion" {
-    summary "Mettre un film sous radar et recevoir une alerte dès qu'il est programmé sur une chaîne couverte"
+    summary "Chaque film marqué « envie de voir » est sous radar : une alerte est envoyée dès qu'il est
+             programmé sur une chaîne couverte"
     persona "Cinéphile du petit écran"
     value-proposition "Ne plus jamais rater un film attendu, sans surveiller les programmes"
     priority must
@@ -337,12 +554,13 @@ product "FilmRadar" {
       "Alerter sur les séries ou les émissions"
     }
     stories {
-      US-004 "En tant que cinéphile du petit écran, je veux mettre un film sous radar,
-              afin d'être prévenu quand il passera à la télé." {
+      US-004 "En tant que cinéphile du petit écran, je veux que chaque film que j'ai envie de voir
+              soit sous radar, afin d'être prévenu quand il passera à la télé sans geste supplémentaire." {
         acceptance-criteria {
-          AC-004-01 "Je peux mettre sous radar n'importe quel film, aimé, envie de voir ou ni l'un ni l'autre"
-          AC-004-02 "Je peux retirer un film du radar à tout moment"
-          AC-004-03 "Le radar reste actif sans limite de durée tant que je ne le retire pas"
+          AC-004-01 "Un film est sous radar si et seulement s'il est marqué « envie de voir »"
+          AC-004-02 "Retirer la mention « envie de voir » retire le film du radar"
+          AC-004-03 "Le radar reste actif sans limite de durée tant que la mention « envie de voir » est présente"
+          AC-004-04 "Pour revoir un film aimé, je le marque aussi « envie de voir », ce qui le met sous radar"
         }
       }
       US-005 "En tant que cinéphile du petit écran, je veux recevoir une alerte dès qu'un film
@@ -380,12 +598,14 @@ product "FilmRadar" {
   }
 
   feature FEAT-005 "Agenda de mes films" {
-    summary "Voir en un coup d'œil les prochaines diffusions connues de mes films sous radar"
+    summary "Voir en un coup d'œil ce que je peux regarder parmi mes envies : ce soir, cette semaine,
+             puis les prochaines diffusions connues"
     persona "Cinéphile du petit écran"
-    value-proposition "Planifier ses soirées cinéma à la télé sans parcourir la grille"
-    priority could
+    value-proposition "Savoir quoi regarder ce soir parmi ses envies et planifier ses soirées cinéma
+                       sans parcourir la grille"
+    priority should
     status proposed
-    addresses "Ne pas rater la diffusion d'un film attendu"
+    addresses "Ne pas rater la diffusion d'un film attendu", "Savoir quoi regarder parmi mes envies, maintenant"
     advances "Adoption et rétention"
     stories {
       US-007 "En tant que cinéphile du petit écran, je veux voir la liste des prochaines diffusions
@@ -395,15 +615,24 @@ product "FilmRadar" {
           AC-007-02 "Seules les chaînes que je reçois apparaissent"
         }
       }
+      US-010 "En tant que cinéphile du petit écran, je veux voir en ouvrant l'application ceux de mes films
+              « envie de voir » que je peux regarder ce soir, afin de choisir sans chercher au hasard." {
+        acceptance-criteria {
+          AC-010-01 "Une vue « Ce soir » liste mes envies diffusées aujourd'hui sur mes chaînes, triées par heure"
+          AC-010-02 "Une vue « Cette semaine » liste mes envies diffusées dans les 7 prochains jours"
+          AC-010-03 "Si aucune envie n'est diffusée ce soir, la vue l'indique et propose la prochaine diffusion connue"
+          AC-010-04 "À partir de la R3, les vues incluent aussi mes envies disponibles sur mes plateformes"
+        }
+      }
     }
   }
 
   feature FEAT-006 "Suggestions à partir de mes films aimés" {
-    summary "Proposer de mettre sous radar des films proches de ceux que j'aime"
+    summary "Proposer de marquer « envie de voir » des films proches de ceux que j'aime"
     persona "Cinéphile du petit écran"
     value-proposition "Donner de la valeur à la mention « j'aime » au-delà de la simple liste"
-    priority wont
-    status deferred
+    priority could
+    status proposed
     addresses "Garder la trace des films qui m'intéressent"
     advances "Adoption et rétention"
   }
@@ -412,8 +641,8 @@ product "FilmRadar" {
     summary "Depuis une alerte de diffusion, programmer l'enregistrement du film sur la box de l'utilisateur"
     persona "Cinéphile du petit écran"
     value-proposition "Passer de « je suis prévenu » à « le film est enregistré », même quand on n'est pas devant la télé"
-    priority wont
-    status deferred
+    priority could
+    status proposed
     addresses "Ne pas rater la diffusion d'un film attendu"
     advances "Adoption et rétention"
   }
@@ -433,10 +662,10 @@ product "FilmRadar" {
     summary "Alerter quand un film sous radar, ou correspondant à un critère suivi, arrive sur une plateforme à laquelle je suis abonné"
     persona "Cinéphile du petit écran"
     value-proposition "Profiter aussi des abonnements déjà payés (Netflix, Prime Video…) sans surveiller leurs catalogues"
-    priority wont
-    status deferred
+    priority could
+    status proposed
     addresses "Ne pas rater la diffusion d'un film attendu", "Être prévenu des films qui correspondent à mes goûts"
-    advances "Adoption et rétention"
+    advances "Adoption et rétention", "Trafic qualifié vers les plateformes"
   }
 
   // ---------------------------------------------------------------------------
@@ -487,11 +716,52 @@ product "FilmRadar" {
     threatens "Adoption et rétention"
   }
 
-  constraint "RGPD" {
-    statement "Les données personnelles (compte, listes de films, préférences) sont traitées conformément au RGPD,
-               y compris le droit à l'effacement"
+  risk "Lien de connexion non reçu" {
+    statement "Le lien de connexion arrive en courrier indésirable ou trop tard, et l'utilisateur abandonne l'inscription"
+    likelihood medium
+    impact high
+    mitigation mitigate
+    owner "Anthony (porteur du produit)"
+    threatens "Adoption et rétention"
+  }
+
+  risk "Perte de confiance par la mise en avant payante" {
+    statement "Les utilisateurs perçoivent les résultats comme orientés par l'argent des plateformes
+               et cessent de faire confiance aux recommandations de FilmRadar"
+    likelihood medium
+    impact high
+    mitigation mitigate
+    owner "Anthony (porteur du produit)"
+    threatens "Trafic qualifié vers les plateformes"
+  }
+
+  assumption "Trafic suffisant pour intéresser les plateformes" {
+    statement "FilmRadar peut générer assez de redirections vers chaque plateforme pour qu'elle accepte de les rémunérer"
+    impact-if-wrong "Pas de monétisation par les plateformes : il faut un autre modèle économique"
+    validation-plan "Mesurer les redirections pendant 6 mois et les comparer aux seuils des programmes d'affiliation des plateformes"
+    status unvalidated
+    underpins "FEAT-012"
+  }
+
+  constraint "Transparence du classement" {
+    statement "Toute offre mise en avant contre rémunération est signalée comme telle à l'utilisateur,
+               et les critères de classement des offres sont publics (Code de la consommation, art. L111-7)"
     source regulatory
-    constrains "FEAT-002", "FEAT-003"
+    constrains "FEAT-012"
+  }
+
+  constraint "RGPD" {
+    statement "Les données personnelles (compte, listes de films, chaînes reçues, abonnements déclarés,
+               jeton d'accès à la box) sont traitées conformément au RGPD, y compris le droit à l'effacement"
+    source regulatory
+    constrains "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-007", "FEAT-012", "FEAT-013"
+  }
+
+  constraint "Consentement à la mesure des redirections" {
+    statement "La mesure des clics vers les plateformes, lorsqu'elle permet de suivre un utilisateur,
+               nécessite son consentement préalable ; à défaut, elle reste anonyme et agrégée"
+    source regulatory
+    constrains "FEAT-012"
   }
 
   constraint "Consentement aux notifications" {
@@ -548,24 +818,46 @@ product "FilmRadar" {
     blocks "FEAT-007"
   }
 
+  open-question "Connexion avec Apple" {
+    question "Faut-il proposer la connexion avec Apple dès la R1 ?"
+    context "Si FilmRadar est publié comme application iOS et propose la connexion Google, les règles
+             de l'App Store imposent d'offrir aussi une option de connexion équivalente respectueuse
+             de la vie privée, typiquement Apple. Dépend de la question « Canal d'alerte »
+             (application mobile ou application web)"
+    owner "Anthony (porteur du produit)"
+    deadline 2026-12-15
+    status open
+    blocks "FEAT-013"
+  }
+
   open-question "Granularité des critères" {
     question "Les données disponibles permettent-elles de reconnaître un cinéaste, un acteur et un genre fin
               (« gore » plutôt que simplement « horreur ») pour chaque film diffusé ?"
     context "Les catalogues de films classent souvent par grands genres ; les sous-genres comme le gore
-             relèvent plutôt de mots-clés, moins fiables. Conditionne la pertinence du radar par critère"
+             relèvent plutôt de mots-clés, moins fiables. Principe retenu : se baser sur les données
+             de style trouvées, sans construire de classification propre. Conditionne la pertinence
+             du radar par critère et de la recherche par style"
     owner "Anthony (porteur du produit)"
     deadline 2027-03-31
     status open
-    blocks "FEAT-008"
+    blocks "FEAT-008", "FEAT-011"
   }
 
   open-question "Source des catalogues de streaming" {
     question "Quelle source fiable et utilisable légalement donne la disponibilité des films par plateforme en France ?"
-    context "Nécessaire pour le radar streaming ; les agrégateurs existants n'offrent pas tous un accès ouvert"
+    context "Nécessaire pour le radar streaming et « Où regarder ». Le catalogue d'une plateforme est le même
+             pour tous les abonnés d'un pays : inutile de le lire compte par compte.
+             Pistes : agrégateurs avec API (données de disponibilité JustWatch via TMDB, Streaming Availability,
+             Watchmode…), à vérifier pour la licence commerciale, la couverture France et le coût ;
+             à terme, flux fournis directement par les plateformes partenaires.
+             La VOD des box est en général un service de VOD comme un autre, couvert comme les autres
+             plateformes ; seul Free Ciné, propre à Free, demande une source spécifique.
+             Écarté : explorer automatiquement les catalogues avec un compte abonné (interdit par les
+             conditions d'utilisation des plateformes, fragile, et incompatible avec un partenariat futur)"
     owner "Anthony (porteur du produit)"
     deadline 2027-06-30
     status open
-    blocks "FEAT-009"
+    blocks "FEAT-009", "FEAT-012"
   }
 
   // ---------------------------------------------------------------------------
@@ -583,7 +875,7 @@ product "FilmRadar" {
         emotional-tone neutral
       }
       step 2 {
-        action "Marque le film « envie de voir » et le met sous radar"
+        action "Marque le film « envie de voir »"
         system-response "Confirme que le film est sous radar"
         channel app
         emotional-tone confident
@@ -613,6 +905,36 @@ product "FilmRadar" {
     }
   }
 
+  journey "Choisir un film ce soir parmi mes envies" for "Cinéphile du petit écran" {
+    trigger "Il s'installe un soir devant l'écran sans savoir quoi regarder"
+    outcome "Il regarde un film qu'il avait noté plusieurs semaines plus tôt"
+    steps {
+      step 1 {
+        action "Ouvre la grille des programmes ou une plateforme et ne sait pas quoi chercher"
+        channel external
+        emotional-tone frustrated
+      }
+      step 2 {
+        action "Ouvre FilmRadar"
+        system-response "Affiche la vue « Ce soir » : ses envies diffusées aujourd'hui sur ses chaînes
+                         et, à partir de la R3, disponibles sur ses plateformes"
+        channel app
+        emotional-tone neutral
+      }
+      step 3 {
+        action "Retrouve un film conseillé par un ami et oublié depuis"
+        system-response "Indique la chaîne et l'heure, ou la plateforme avec un lien direct"
+        channel app
+        emotional-tone delighted
+      }
+      step 4 {
+        action "Regarde le film"
+        channel external
+        emotional-tone confident
+      }
+    }
+  }
+
   // ---------------------------------------------------------------------------
   // Versions
   // ---------------------------------------------------------------------------
@@ -625,6 +947,7 @@ product "FilmRadar" {
       "FEAT-001"
       "FEAT-002"
       "FEAT-003"
+      "FEAT-013"
     }
     entry-criteria {
       "Source des programmes TV choisie et licence validée"
@@ -639,15 +962,55 @@ product "FilmRadar" {
 
   release "R2 — Alertes ciblées" {
     target-date "T2 2027"
-    theme "Ne recevoir que des alertes utiles et voir son agenda"
+    theme "Alertes utiles, savoir quoi regarder ce soir et retrouver un film sans son titre"
     status planned
     depends-on "R1 — Radar minimal"
     includes {
       "FEAT-004"
       "FEAT-005"
+      "FEAT-010"
     }
     exit-criteria {
       "Moins de 2 % d'alertes signalées comme erronées"
+    }
+  }
+
+  release "R3 — De l'envie au visionnage" {
+    target-date "À définir"
+    theme "Savoir où regarder chaque film (télé, streaming, VOD) et ne plus le rater, même absent"
+    status planned
+    depends-on "R2 — Alertes ciblées"
+    includes {
+      "FEAT-009"
+      "FEAT-012"
+      "FEAT-007"
+    }
+    entry-criteria {
+      "Objectif « Adoption et rétention » atteint (≥ 40 % d'alertes actives à 3 mois)"
+      "Source des catalogues de streaming choisie et licence validée"
+    }
+    exit-criteria {
+      "Redirections vers les plateformes mesurées par plateforme"
+      "Au moins 20 % des utilisateurs actifs cliquent sur une offre au moins une fois par mois (cible à confirmer)"
+      "Critères de classement des offres publiés et offres rémunérées signalées"
+    }
+  }
+
+  release "R4 — Suivre ses goûts" {
+    target-date "À définir"
+    theme "Être prévenu et retrouver des films par critère, style et proximité avec ses films aimés"
+    status planned
+    depends-on "R2 — Alertes ciblées"
+    includes {
+      "FEAT-008"
+      "FEAT-011"
+      "FEAT-006"
+    }
+    entry-criteria {
+      "Question « Granularité des critères » résolue"
+    }
+    exit-criteria {
+      "Moins de 2 % d'alertes hors sujet signalées sur le radar par critère"
     }
   }
 }
